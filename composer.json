@@ -1,0 +1,21 @@
+{
+    "name": "deweppro/client",
+    "description": "Client for HTTP, FTP",
+    "keywords": ["curl","rest","http","ftp"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mikhail Knyazhev",
+            "email": "markus621@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Dewep\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.0.0"
+    }
+}
