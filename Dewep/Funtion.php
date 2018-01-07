@@ -3,8 +3,6 @@
 namespace Dewep;
 
 /**
- * Description of Funtion
- *
  * @author Mikhail Knyazhev <markus621@gmail.com>
  */
 class Funtion
@@ -67,7 +65,7 @@ class Funtion
         $contentType = $head['Content-Type'] ?? '';
 
         if (!is_array($body)) {
-            return $body;
+            return (string)$body;
         }
 
         //--
