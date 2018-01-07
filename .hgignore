@@ -1,22 +1,15 @@
-.hgtags
-.lock
-/bootstrap/compiled.php
-composer.phar
-composer.lock
-.env.local.php
-.env.php
-.DS_Store
-Thumbs.db
-
-syntax: regexp
-^vendor/
-^temp/
-
-syntax: glob
-.idea
-.settings/
-.project
-.cache/
 nbproject/
-/nbproject/private/
-node_modules/
+.DS_Store
+
+.hg/
+.hgignore
+.hgsigs
+.hgsub
+.hgsubstate
+.hgtags
+
+composer.phar
+vendor/
+
+.idea/
+composer.lock
