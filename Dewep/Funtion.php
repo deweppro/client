@@ -7,7 +7,10 @@ namespace Dewep;
  */
 class Funtion
 {
-
+    /**
+     * @param string $key
+     * @return string
+     */
     public static function originalHttpKey(string $key): string
     {
         if (stripos($key, 'HTTP_') === 0) {
@@ -18,6 +21,11 @@ class Funtion
         return str_replace(' ', '-', trim($key));
     }
 
+    /**
+     * @param string $url
+     * @param array $update
+     * @return string
+     */
     public static function updateUrl(string $url, array $update): string
     {
         $url = parse_url($url);
@@ -60,6 +68,11 @@ class Funtion
                 . ($query ? '?' . $query : '');
     }
 
+    /**
+     * @param $body
+     * @param $head
+     * @return mixed|string
+     */
     public static function bodyFormat($body, $head)
     {
         $contentType = $head['Content-Type'] ?? '';
