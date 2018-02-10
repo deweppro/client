@@ -7,35 +7,35 @@ use Dewep\Funtion;
 class Http implements HttpInterface
 {
 
-    const HTTP_METHOD_HEAD = 'HEAD';
-    const HTTP_METHOD_GET = 'GET';
-    const HTTP_METHOD_PUT = 'PUT';
-    const HTTP_METHOD_POST = 'POST';
+    const HTTP_METHOD_HEAD   = 'HEAD';
+    const HTTP_METHOD_GET    = 'GET';
+    const HTTP_METHOD_PUT    = 'PUT';
+    const HTTP_METHOD_POST   = 'POST';
     const HTTP_METHOD_DELETE = 'DELETE';
 
     protected $logger;
-    protected $head = [
+    protected $head     = [
         //'Content-Type' => 'application/json; charset=utf-8'
     ];
-    protected $config = [
-        CURLOPT_URL => 'http://localhost',
-        CURLOPT_USERAGENT => 'DewepClient/1.0; +https://bitbucket.org/deweppro/client',
+    protected $config   = [
+        CURLOPT_URL            => 'http://localhost',
+        CURLOPT_USERAGENT      => 'DewepClient/1.0; +https://bitbucket.org/deweppro/client',
         CURLOPT_RETURNTRANSFER => true,
-        CURLINFO_HEADER_OUT => true,
+        CURLINFO_HEADER_OUT    => true,
         CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_VERBOSE => true,
-        CURLOPT_HEADER => true,
-        CURLINFO_HEADER_OUT => true,
-        CURLOPT_CRLF => true,
-        CURLOPT_FRESH_CONNECT => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+        CURLOPT_VERBOSE        => true,
+        CURLOPT_HEADER         => true,
+        CURLINFO_HEADER_OUT    => true,
+        CURLOPT_CRLF           => true,
+        CURLOPT_FRESH_CONNECT  => true,
+        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
         CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_HTTPHEADER => [],
-        CURLOPT_CUSTOMREQUEST => 'GET',
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
+        CURLOPT_HTTPHEADER     => [],
+        CURLOPT_CUSTOMREQUEST  => 'GET',
+        CURLOPT_TIMEOUT        => 30,
+        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
     ];
     protected $body;
     protected $response = [];
@@ -93,7 +93,7 @@ class Http implements HttpInterface
         $this->body = $body;
 
         $this->config[CURLOPT_CUSTOMREQUEST] = static::HTTP_METHOD_POST;
-        $this->config[CURLOPT_POSTFIELDS] = Funtion::bodyFormat($this->body, $this->head);
+        $this->config[CURLOPT_POSTFIELDS]    = Funtion::bodyFormat($this->body, $this->head);
 
         return $this;
     }
@@ -103,7 +103,7 @@ class Http implements HttpInterface
         $this->body = $body;
 
         $this->config[CURLOPT_CUSTOMREQUEST] = static::HTTP_METHOD_PUT;
-        $this->config[CURLOPT_POSTFIELDS] = Funtion::bodyFormat($this->body, $this->head);
+        $this->config[CURLOPT_POSTFIELDS]    = Funtion::bodyFormat($this->body, $this->head);
 
         return $this;
     }
@@ -141,12 +141,12 @@ class Http implements HttpInterface
     public function setProxy(string $host, int $port, string $login = '', string $passwd = ''): HttpInterface
     {
         if (!empty($login) && !empty($passwd)) {
-            $this->config[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
+            $this->config[CURLOPT_PROXYAUTH]    = CURLAUTH_BASIC;
             $this->config[CURLOPT_PROXYUSERPWD] = sprintf("%s:%s", $login, $passwd);
         }
 
         $this->config[CURLOPT_PROXYTYPE] = CURLPROXY_HTTP;
-        $this->config[CURLOPT_PROXY] = $host;
+        $this->config[CURLOPT_PROXY]     = $host;
         $this->config[CURLOPT_PROXYPORT] = $port;
 
         return $this;
@@ -154,12 +154,12 @@ class Http implements HttpInterface
 
     public function setBasicAuth(string $login, string $pwd): HttpInterface
     {
-        return $this->setHead('Authorization', 'Basic ' . base64_encode($login . ':' . $pwd));
+        return $this->setHead('Authorization', 'Basic '.base64_encode($login.':'.$pwd));
     }
 
     public function setHead(string $key, string $value): HttpInterface
     {
-        $key = Funtion::originalHttpKey($key);
+        $key              = Funtion::originalHttpKey($key);
         $this->head[$key] = trim($value);
 
         return $this;
@@ -167,7 +167,7 @@ class Http implements HttpInterface
 
     public function setBearerAuth(string $token): HttpInterface
     {
-        return $this->setHead('Authorization', 'Bearer ' . $token);
+        return $this->setHead('Authorization', 'Bearer '.$token);
     }
 
     public function make(): HttpInterface
@@ -177,19 +177,41 @@ class Http implements HttpInterface
         //--
         $curl = curl_init();
         curl_setopt_array($curl, $this->config ?? []);
-        $this->response['body'] = curl_exec($curl);
+        $this->response['body']  = curl_exec($curl);
         $this->response['error'] = curl_error($curl);
-        $this->response['info'] = curl_getinfo($curl);
+        $this->response['info']  = curl_getinfo($curl);
         curl_close($curl);
 
         //--
-        $this->response['http_code'] = $this->response['info']['http_code'] ?? null;
-        $this->response['primary_ip'] = $this->response['info']['primary_ip'] ?? null;
+        $this->response['http_code']      = $this->response['info']['http_code'] ?? null;
+        $this->response['primary_ip']     = $this->response['info']['primary_ip'] ?? null;
         $this->response['request_header'] = $this->response['info']['request_header'] ?? [];
 
         if (!empty($this->response['http_code'])) {
-            @list($this->response['head'], $this->response['body']) = explode("\r\n\r\n",
-                $this->response['body'], 2);
+            @list($this->response['head'], $this->response['body']) = explode(
+                "\r\n\r\n",
+                $this->response['body'],
+                2
+            );
+
+            $parse = true;
+            do {
+                @list($this->response['head'], $this->response['body']) = explode(
+                    "\r\n\r\n",
+                    $this->response['body'],
+                    2
+                );
+
+                if (in_array(
+                    substr($this->response['body'], 0, 6),
+                    ['HTTP/0', 'HTTP/1', 'HTTP/2',]
+                )) {
+                    $parse = false;
+                }
+
+
+            } while ($parse);
+
             $this->response['head'] = $this->heads2array(explode("\n", $this->response['head'] ?? ''));
         }
 
@@ -208,6 +230,7 @@ class Http implements HttpInterface
             $head[$key] = sprintf('%s: %s', $key, $value);
         }
         $head['Expect'] = 'Expect:';
+
         return array_values($head);
     }
 
@@ -223,6 +246,7 @@ class Http implements HttpInterface
 
             $head[trim($key)] = trim($value);
         }
+
         return $head;
     }
 
@@ -260,9 +284,9 @@ class Http implements HttpInterface
             }
         }
 
-        $backup = libxml_disable_entity_loader(true);
+        $backup        = libxml_disable_entity_loader(true);
         $backup_errors = libxml_use_internal_errors(true);
-        $sxe = simplexml_load_string($body);
+        $sxe           = simplexml_load_string($body);
         libxml_disable_entity_loader($backup);
         libxml_clear_errors();
         libxml_use_internal_errors($backup_errors);
