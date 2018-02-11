@@ -276,8 +276,9 @@ class Http
 
         if (!empty($this->response['http_code'])) {
 
-            $parse = true;
             do {
+                $parse = true;
+
                 @list($this->response['head'], $this->response['body']) = explode(
                     "\r\n\r\n",
                     $this->response['body'],
