@@ -4,7 +4,7 @@ namespace Dewep\Client;
 
 use Dewep\Funtion;
 
-class Http implements HttpInterface
+class Http
 {
 
     const HTTP_METHOD_HEAD   = 'HEAD';
@@ -13,13 +13,14 @@ class Http implements HttpInterface
     const HTTP_METHOD_POST   = 'POST';
     const HTTP_METHOD_DELETE = 'DELETE';
 
+    /** @var mixed */
     protected $logger;
-    protected $head     = [
-        //'Content-Type' => 'application/json; charset=utf-8'
-    ];
-    protected $config   = [
+    /** @var array */
+    protected $head = [];
+    /** @var array */
+    protected $config = [
         CURLOPT_URL            => 'http://localhost',
-        CURLOPT_USERAGENT      => 'DewepClient/1.0; +https://bitbucket.org/deweppro/client',
+        CURLOPT_USERAGENT      => 'HttpClient/1.0',
         CURLOPT_RETURNTRANSFER => true,
         CURLINFO_HEADER_OUT    => true,
         CURLOPT_FOLLOWLOCATION => true,
@@ -37,11 +38,12 @@ class Http implements HttpInterface
         CURLOPT_TIMEOUT        => 30,
         CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
     ];
+    /** @var string */
     protected $body;
+    /** @var array */
     protected $response = [];
 
     /**
-     * Http constructor.
      * @param null $logger
      */
     public function __construct($logger = null)
@@ -49,46 +51,75 @@ class Http implements HttpInterface
         $this->logger = $logger;
     }
 
-    public function methodGet(array $data = []): HttpInterface
+    /**
+     * @param array $data
+     * @return Http
+     */
+    public function methodGet($data = [])
     {
-        $url = Funtion::updateUrl($this->getUrl(), ['query' => $data]);
+        $url = Funtion::updateUrl($this->getUrl(), ['query' => is_array($data) ? $data : [$data]]);
 
         $this->config[CURLOPT_CUSTOMREQUEST] = static::HTTP_METHOD_GET;
 
         return $this->setUrl($url);
     }
 
-    public function getUrl(): string
+    /**
+     * @return mixed|string
+     */
+    public function getUrl()
     {
-        return $this->config[CURLOPT_URL] ?? 'http://localhost';
+        return empty($this->config[CURLOPT_URL]) ? 'http://localhost' : $this->config[CURLOPT_URL];
     }
 
-    public function setUrl(string $url): HttpInterface
+    /**
+     * @param string $url
+     * @return Http
+     */
+    public function setUrl($url = 'http://localhost')
     {
-        $this->config[CURLOPT_URL] = $url;
+        $this->config[CURLOPT_URL] = (string)$url;
 
         return $this;
     }
 
-    public function methodHead(array $data = []): HttpInterface
+    /**
+     * @param array $data
+     * @return Http
+     */
+    public function methodHead($data = [])
     {
-        $url = Funtion::updateUrl($this->getUrl(), ['query' => $data]);
+        $url = Funtion::updateUrl(
+            $this->getUrl(),
+            ['query' => is_array($data) ? $data : [(string)$data]]
+        );
 
         $this->config[CURLOPT_CUSTOMREQUEST] = static::HTTP_METHOD_HEAD;
 
         return $this->setUrl($url);
     }
 
-    public function methodDelete(array $data = []): HttpInterface
+    /**
+     * @param array $data
+     * @return Http
+     */
+    public function methodDelete($data = [])
     {
-        $url = Funtion::updateUrl($this->getUrl(), ['query' => $data]);
+        $url = Funtion::updateUrl(
+            $this->getUrl(),
+            ['query' => is_array($data) ? $data : [(string)$data]]
+        );
 
         $this->config[CURLOPT_CUSTOMREQUEST] = static::HTTP_METHOD_DELETE;
 
         return $this->setUrl($url);
     }
 
-    public function methodPost($body): HttpInterface
+    /**
+     * @param $body
+     * @return Http
+     */
+    public function methodPost($body)
     {
         $this->body = $body;
 
@@ -98,7 +129,11 @@ class Http implements HttpInterface
         return $this;
     }
 
-    public function methodPut($body): HttpInterface
+    /**
+     * @param $body
+     * @return Http
+     */
+    public function methodPut($body)
     {
         $this->body = $body;
 
@@ -108,14 +143,21 @@ class Http implements HttpInterface
         return $this;
     }
 
-    public function setTimeout(int $timeout): HttpInterface
+    /**
+     * @param int $timeout
+     * @return Http
+     */
+    public function setTimeout($timeout = 0)
     {
-        $this->config[CURLOPT_TIMEOUT] = $timeout;
+        $this->config[CURLOPT_TIMEOUT] = (int)$timeout;
 
         return $this;
     }
 
-    public function sslOn(): HttpInterface
+    /**
+     * @return Http
+     */
+    public function sslOn()
     {
         $this->config[CURLOPT_SSL_VERIFYHOST] = 2;
         $this->config[CURLOPT_SSL_VERIFYPEER] = true;
@@ -123,7 +165,10 @@ class Http implements HttpInterface
         return $this;
     }
 
-    public function sslOff(): HttpInterface
+    /**
+     * @return Http
+     */
+    public function sslOff()
     {
         $this->config[CURLOPT_SSL_VERIFYHOST] = 0;
         $this->config[CURLOPT_SSL_VERIFYPEER] = false;
@@ -131,68 +176,105 @@ class Http implements HttpInterface
         return $this;
     }
 
-    public function setUserAgent(string $value): HttpInterface
+    /**
+     * @param string $value
+     * @return Http
+     */
+    public function setUserAgent($value = 'HttpClient/1')
     {
-        $this->config[CURLOPT_USERAGENT] = $value;
+        $this->config[CURLOPT_USERAGENT] = (string)$value;
 
         return $this;
     }
 
-    public function setProxy(string $host, int $port, string $login = '', string $passwd = ''): HttpInterface
+    /**
+     * @param string $host
+     * @param int $port
+     * @param string $login
+     * @param string $passwd
+     * @return Http
+     */
+    public function setProxy($host = '127.0.0.1', $port = 3128, $login = '', $passwd = '')
     {
         if (!empty($login) && !empty($passwd)) {
             $this->config[CURLOPT_PROXYAUTH]    = CURLAUTH_BASIC;
-            $this->config[CURLOPT_PROXYUSERPWD] = sprintf("%s:%s", $login, $passwd);
+            $this->config[CURLOPT_PROXYUSERPWD] = sprintf("%s:%s", (string)$login, (string)$passwd);
         }
 
         $this->config[CURLOPT_PROXYTYPE] = CURLPROXY_HTTP;
-        $this->config[CURLOPT_PROXY]     = $host;
-        $this->config[CURLOPT_PROXYPORT] = $port;
+        $this->config[CURLOPT_PROXY]     = (string)$host;
+        $this->config[CURLOPT_PROXYPORT] = (int)$port;
 
         return $this;
     }
 
-    public function setBasicAuth(string $login, string $pwd): HttpInterface
+    /**
+     * @param string $login
+     * @param string $pwd
+     * @return Http
+     */
+    public function setBasicAuth($login = '', $pwd = '')
     {
-        return $this->setHead('Authorization', 'Basic '.base64_encode($login.':'.$pwd));
+        return $this->setHead(
+            'Authorization',
+            sprintf(
+                'Base %s',
+                base64_encode(
+                    sprintf('%s:%s', $login, $pwd)
+                )
+            )
+        );
     }
 
-    public function setHead(string $key, string $value): HttpInterface
+    /**
+     * @param string $key
+     * @param string $value
+     * @return Http
+     */
+    public function setHead($key = '', $value = '')
     {
-        $key              = Funtion::originalHttpKey($key);
-        $this->head[$key] = trim($value);
+        $key              = (string)Funtion::originalHttpKey((string)$key);
+        $this->head[$key] = trim((string)$value);
 
         return $this;
     }
 
-    public function setBearerAuth(string $token): HttpInterface
+    /**
+     * @param string $token
+     * @return Http
+     */
+    public function setBearerAuth($token = '')
     {
-        return $this->setHead('Authorization', 'Bearer '.$token);
+        return $this->setHead(
+            'Authorization',
+            sprintf('Bearer %s', $token)
+        );
     }
 
-    public function make(): HttpInterface
+    /**
+     * @return Http
+     */
+    public function make()
     {
         //--
         $this->config[CURLOPT_HTTPHEADER] = $this->heads2line($this->head);
         //--
         $curl = curl_init();
-        curl_setopt_array($curl, $this->config ?? []);
+        curl_setopt_array($curl, empty($this->config) ? [] : $this->config);
         $this->response['body']  = curl_exec($curl);
         $this->response['error'] = curl_error($curl);
         $this->response['info']  = curl_getinfo($curl);
         curl_close($curl);
 
         //--
-        $this->response['http_code']      = $this->response['info']['http_code'] ?? null;
-        $this->response['primary_ip']     = $this->response['info']['primary_ip'] ?? null;
-        $this->response['request_header'] = $this->response['info']['request_header'] ?? [];
+        $this->response['http_code']      = empty($this->response['info']['http_code']) ?
+            null : (int)$this->response['info']['http_code'];
+        $this->response['primary_ip']     = empty($this->response['info']['primary_ip']) ?
+            null : (string)$this->response['info']['primary_ip'];
+        $this->response['request_header'] = empty($this->response['info']['request_header']) ?
+            [] : $this->response['info']['request_header'];
 
         if (!empty($this->response['http_code'])) {
-            @list($this->response['head'], $this->response['body']) = explode(
-                "\r\n\r\n",
-                $this->response['body'],
-                2
-            );
 
             $parse = true;
             do {
@@ -212,7 +294,12 @@ class Http implements HttpInterface
 
             } while ($parse);
 
-            $this->response['head'] = $this->heads2array(explode("\n", $this->response['head'] ?? ''));
+            $this->response['head'] = $this->heads2array(
+                explode(
+                    "\n",
+                    empty($this->response['head']) ? '' : $this->response['head']
+                )
+            );
         }
 
         //--
@@ -223,9 +310,10 @@ class Http implements HttpInterface
      * @param array $headers ['Content-Type'=>'application/json']
      * @return array ['Content-Type: application/json']
      */
-    protected function heads2line(array $headers): array
+    protected function heads2line($headers)
     {
-        $head = [];
+        $headers = is_array($headers) ? $headers : [$headers];
+        $head    = [];
         foreach ($headers as $key => $value) {
             $head[$key] = sprintf('%s: %s', $key, $value);
         }
@@ -238,9 +326,10 @@ class Http implements HttpInterface
      * @param array $headers ['Content-Type: application/json']
      * @return array ['Content-Type'=>'application/json']
      */
-    protected function heads2array(array $headers): array
+    protected function heads2array($headers)
     {
-        $head = [];
+        $headers = is_array($headers) ? $headers : [$headers];
+        $head    = [];
         foreach ($headers as $item) {
             @list($key, $value) = explode(':', $item, 2);
 
@@ -250,35 +339,57 @@ class Http implements HttpInterface
         return $head;
     }
 
-    public function getResponseError(): string
+    /**
+     * @return mixed
+     */
+    public function getResponseError()
     {
         return $this->response['error'];
     }
 
-    public function getResponseInfo(): array
+    /**
+     * @return mixed
+     */
+    public function getResponseInfo()
     {
         return $this->response['info'];
     }
 
-    public function getStatusCode(): int
+    /**
+     * @return int
+     */
+    public function getStatusCode()
     {
         return (int)$this->response['http_code'];
     }
 
-    public function getResponseJson(bool $asObject = false)
+    /**
+     * @param bool $asObject
+     * @return mixed
+     */
+    public function getResponseJson($asObject = false)
     {
         return json_decode($this->getResponse(), !$asObject);
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getResponse()
     {
-        return $this->response['body'] ?? null;
+        return empty($this->response['body']) ? null : $this->response['body'];
     }
 
-    public function getResponseXml(array $namespaces = [], array $replace = []): \SimpleXMLElement
+    /**
+     * @param array $namespaces
+     * @param array $replace
+     * @return \SimpleXMLElement
+     */
+    public function getResponseXml($namespaces = [], $replace = [])
     {
         $body = $this->getResponse();
         if (!empty($replace)) {
+            $replace = is_array($replace) ? $replace : [$replace];
             foreach ($replace as $from => $to) {
                 $body = str_replace($from, $to, $body);
             }
@@ -296,6 +407,7 @@ class Http implements HttpInterface
         }
 
         if (!empty($namespaces)) {
+            $namespaces = is_array($namespaces) ? $namespaces : [$namespaces];
             foreach ($namespaces as $prefix => $ns) {
                 $sxe->registerXPathNamespace($prefix, $ns);
             }
@@ -304,13 +416,19 @@ class Http implements HttpInterface
         return $sxe;
     }
 
-    public function getResponseHead(): array
+    /**
+     * @return array|mixed
+     */
+    public function getResponseHead()
     {
-        return $this->response['head'] ?? [];
+        return empty($this->response['head']) ? [] : $this->response['head'];
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getServerIp()
     {
-        return $this->response['primary_ip'] ?? null;
+        return empty($this->response['primary_ip']) ? null : $this->response['primary_ip'];
     }
 }
