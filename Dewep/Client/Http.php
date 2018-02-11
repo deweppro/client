@@ -277,7 +277,7 @@ class Http
         if (!empty($this->response['http_code'])) {
 
             do {
-                $parse = true;
+                $parse = false;
 
                 @list($this->response['head'], $this->response['body']) = explode(
                     "\r\n\r\n",
@@ -289,7 +289,7 @@ class Http
                     substr($this->response['body'], 0, 6),
                     ['HTTP/0', 'HTTP/1', 'HTTP/2',]
                 )) {
-                    $parse = false;
+                    $parse = true;
                 }
 
 
