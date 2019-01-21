@@ -3,15 +3,18 @@
 namespace Dewep;
 
 /**
- * @author Mikhail Knyazhev <markus621@gmail.com>
+ * Class Funtion
+ *
+ * @package Dewep
  */
 class Funtion
 {
     /**
      * @param string $key
+     *
      * @return string
      */
-    public static function originalHttpKey($key)
+    public static function originalHttpKey(string $key): string
     {
         if (stripos($key, 'HTTP_') === 0) {
             $key = substr($key, 5);
@@ -24,10 +27,11 @@ class Funtion
 
     /**
      * @param string $url
-     * @param array $update
+     * @param array  $update
+     *
      * @return string
      */
-    public static function updateUrl($url, $update)
+    public static function updateUrl(string $url, array $update): string
     {
         $url = parse_url($url);
 
@@ -36,12 +40,12 @@ class Funtion
         }
 
         $scheme = static::exist($update, 'scheme', static::exist($url, 'scheme', null));
-        $user   = static::exist($update, 'user', static::exist($url, 'user', null));
-        $pass   = static::exist($update, 'pass', static::exist($url, 'pass', null));
-        $host   = static::exist($update, 'host', static::exist($url, 'host', null));
-        $port   = static::exist($update, 'port', static::exist($url, 'port', null));
-        $path   = static::exist($update, 'path', static::exist($url, 'path', null));
-        $query  = static::exist($update, 'query', static::exist($url, 'query', null));
+        $user = static::exist($update, 'user', static::exist($url, 'user', null));
+        $pass = static::exist($update, 'pass', static::exist($url, 'pass', null));
+        $host = static::exist($update, 'host', static::exist($url, 'host', null));
+        $port = static::exist($update, 'port', static::exist($url, 'port', null));
+        $path = static::exist($update, 'path', static::exist($url, 'path', null));
+        $query = static::exist($update, 'query', static::exist($url, 'query', null));
 
         if (isset($update['query'])) {
             $_query = [];
@@ -73,26 +77,24 @@ class Funtion
     }
 
     /**
-     * @param mixed $obj
+     * @param mixed  $obj
      * @param string $key
-     * @param mixed $defaulf
+     * @param mixed  $defaulf
+     *
      * @return mixed
      */
-    public static function exist($obj, $key, $defaulf)
+    public static function exist($obj, string $key, $defaulf = null)
     {
-        if (isset($obj[$key])) {
-            return $obj[$key];
-        }
-
-        return $defaulf;
+        return $obj[$key] ?? $defaulf;
     }
 
     /**
-     * @param $body
-     * @param $head
-     * @return mixed|string
+     * @param mixed $body
+     * @param array $head
+     *
+     * @return string
      */
-    public static function bodyFormat($body, $head)
+    public static function bodyFormat($body, array $head): string
     {
         $contentType = empty($head['Content-Type']) ? '' : $head['Content-Type'];
 
@@ -102,7 +104,7 @@ class Funtion
 
         //--
         if (stripos($contentType, 'json') !== false) {
-            return json_encode($body);
+            return (string)json_encode($body);
         } //--
         elseif (stripos($contentType, 'x-www-form-urlencoded') !== false) {
             return http_build_query($body);
@@ -111,8 +113,10 @@ class Funtion
             $xml = new \SimpleXMLElement('<body/>');
             array_walk_recursive($body, array($xml, 'addChild'));
 
-            return $xml->asXML();
+            return (string)$xml->asXML();
         }
+
+        return '';
     }
 
 }
