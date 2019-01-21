@@ -1,8 +1,17 @@
 {
     "name": "deweppro/client",
-    "description": "Client for HTTP, FTP",
-    "keywords": ["curl","rest","http","ftp"],
-    "type": "library",
+    "description": "client for working with resources",
+    "keywords": [
+        "curl",
+        "rest",
+        "http",
+        "ftp"
+    ],
+    "homepage": "https://framework.dewep.pro",
+    "support": {
+        "issues": "https://github.com/deweppro/framework/issues",
+        "source": "https://github.com/deweppro/framework"
+    },
     "license": "MIT",
     "authors": [
         {
@@ -12,10 +21,39 @@
     ],
     "autoload": {
         "psr-4": {
-            "Dewep\\": "Dewep/"
+            "Dewep\\": "src/Dewep/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Dewep\\Tests\\": "tests/"
         }
     },
     "require": {
-        "php": ">=5.6.0"
+        "php": "^7.2",
+        "ext-json": "*",
+        "ext-curl": "*",
+        "ext-soap": "*",
+        "ext-xml": "*",
+        "ext-simplexml": "*",
+        "ext-libxml": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.5",
+        "phpstan/phpstan": "^0.10"
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "7.2.0"
+        }
+    },
+    "scripts": {
+        "lint": [
+            "php vendor/bin/phpstan analyse -c phpstan.neon -l max src"
+        ],
+        "test": [
+            "php vendor/bin/phpunit"
+        ]
     }
 }
