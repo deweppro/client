@@ -35,6 +35,7 @@
         "ext-curl": "*",
         "ext-soap": "*",
         "ext-xml": "*",
+        "ext-fileinfo": "*",
         "ext-simplexml": "*",
         "ext-libxml": "*"
     },

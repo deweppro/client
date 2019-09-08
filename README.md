@@ -1,32 +1,48 @@
 
 # PHP HTTP client
-===
 
-Example:
+**Example**:
 
 ```php
-<?php
+<?php declare(strict_types=1);
 
-include './Dewep/Funtion.php';
-include './Dewep/Client/HttpInterface.php';
-include './Dewep/Client/Http.php';
-
+include_once './vendor/autoload.php';
 
 $client = new \Dewep\Client\Http();
 
-$response = $client
-        ->setUrl('https://packagist.org/search.json')
-        ->setTimeout(120)
-        ->methodGet(['q' => 'deweppro'])
-        ->sslOff()
-        ->make();
+$client->setUrl('https://localhost/test', ['a' => 1])
+    ->setTimeout(10)
+    ->sslVerify(true)
+    ->setUserAgent('TestUserAgent');
 
-$bodySource = $response->getResponse();
-$body = $response->getResponseJson();
-$statusCode = $response->getStatusCode();
-$head = $response->getResponseHead();
-$info = $response->getResponseInfo();
-$error = $response->getResponseError();
+$client->getHeaders()
+    ->setContentType('text/json')
+    ->setKeepAlive(10)
+    ->setBasicAuth('login', 'pass');
 
+$response = $client->post(
+    [
+        'test' => [
+            'test'  => 'hello',
+            'test2' => 'hello',
+        ],
+    ]
+)->exec()->getResponse();
+
+$info = $response->getInfo();
+var_export($info);
+
+$parsedResp = $response->getBody();
+var_export($parsedResp);
+
+$rawResp = $response->getBody(true);
+var_export($rawResp);
+
+$xml = $response->asXml(
+    [
+        'x' => 'http://xml.localhost/type/x',
+    ]
+);
+var_export($xml);
 
 ```
