@@ -47,7 +47,7 @@ class Http implements HttpInterface
 
         $this->curl = curl_init();
 
-        if ($this->curl === false) {
+        if (!is_resource($this->curl)) {
             throw new \RuntimeException('can`t init cUrl');
         }
 
@@ -59,7 +59,7 @@ class Http implements HttpInterface
      */
     final public function __destruct()
     {
-        if ($this->curl !== false) {
+        if (is_resource($this->curl)) {
             curl_close($this->curl);
         }
     }
